@@ -1,0 +1,198 @@
+title: "Analyzing The Effect of Family Relationships on Students’ Grades"
+author: "Inaara Virani - 1004596332"
+date: "12/21/2020"
+output: pdf_document
+---
+
+```{r include=FALSE}
+library(tibble)
+library(ggplot2)
+library(tidyverse)
+library(dplyr)
+```
+
+##Abstract 
+
+The purpose of this report is to analyze the effect of the type of relationships students have with their families on their grades. A multiple linear regression model will be used to develop the model and various qualitative and quantitative factors that describe the familial relationship status at home will be taken into account to portray the impact of those factors on the students' GPA. The following sections will introduce the study and data, provide details on the methodology and model, state the result of these factors on the students' GPA, and provide weaknesses and further steps that need to be taken. These sections will lead to the concluding result that most of the variables are not statistically significant in determining the GPA of students. 
+
+## Keywords
+
+Keywords: observational study, multiple linear regression model, dependent variable, predictor, correlation, qualitative variables, quantitative variables, p-value, significance level, hypothesis testing, regression coefficient 
+
+
+## Introduction 
+
+Statistics is an extremely versatile discipline which can be used in any field to quantify relationships and effects, even when it comes to qualitative factors. This observational study can have various global impacts especially in the education field if it is found that familial relationships do impact the students' GPA. Worldwide, a high GPA is representative of an intelligent and academically exceptional child. This concept is interesting as intelligence is a qualitative measure, however, it is based on how high a student's grades are which is a quantitative measure. Establishing a correlation between the familial relationship and GPA of students can change the way GPA is perceived and can help students who have a low GPA overcome challenges such as getting a job. An observational study is one where you do not have control over the subjects and can't randomly assign the subjects to different experiment groups. Since an observational study is not strong enough to imply causation, The P-value and R^2 will be used to determine the fit and significance of the model. 
+
+
+As mentioned in the above paragraph, the main determinant of impact will be the P-Value since causation can not be determined from an observational study. the P-value of the beta coefficients of the simple linear regression model can be compared to the significance level to determine if the predictors are significant in determining the GPA of students. This data analysis technique is the null hypothesis significance testing. The p-value is the probability that the test statistic is at least as extreme as the observed value. under the null hypothesis. For the purpose of this paper, we will assume a significance level of 0.05. The P-value can be found using the function summary(). This report will also consider R^2 of the models that will be developed. R^2 is used to explain the proportion of the response variable in the model that is explained by the multiple linear regression model. It is also known as the coefficient of multiple determination and the higher its value the better the model is a fit for the data. The value lies between 0 and 1 and is available in the function summary() 
+
+
+Multiple case studies have been performed before to determine whether a high GPA signifies high intelligence what the correlation between a high GPA and a smart individual is. To their conclusion, a low GPA does not mean that the individual is less bright than one with a high GPA. Many HR managers have stopped factoring in an individual's GPA in their hiring decisions and this idea of a low GPA not interpreting to a dull individual is becoming more accepted worldwide. 
+
+The following sections will provide details on the data set, the model, the method, and conclusions to find the impact of familial relationships on students' GPA. Two data sets will be used and the same process of analysis will be carried out on both the data sets to confirm the findings and to ensure that the findings are accurate and general rather than specific to only one data set. The methodology section will describe the multiple linear regression model and the list the summary statistics that will help determine the significance and correlation of predictors. It will also provide information about the data set and the factors used. The discussion section will discuss the results of the previous section, drawbacks to this study, and the next steps that need to be taken in order to lead to more accurate findings and results and how the results should be communicated in order to make necessary changes to the education system. 
+
+##Methodology 
+
+#The Data 
+
+The data that is going to be analyzed involves two data sets. One data set is of students in math class and the other data set is of students in Portuguese class. Both the sample classes were from a secondary school and contained various social and demographic factors. The individual data sets contain 33 variables and approximately 395 observations and were found on Kaggle. Both of the data sets have been cleaned and condensed to six predictor variables, one dependent variable, and 200 observations. Both data sets contain the following variables and are listed in Table 1 along with their descriptions:
+
+```{r, echo=FALSE}
+variable_name <- c('G3', 'famrel', 'Mjob','Fjob', 'famsize', 'Pstatus', 'guardian')
+description <- c('final grade (numeric: from 0 to 20, output target)','quality of family relationships (numeric: from     1 - very bad to 5 - excellent)',"mother's job (nominal: 'teacher', 'health' care related, civil 'services' (e.g. administrative or police), 'at_home' or 'other')","father's job (nominal: 'teacher', 'health' care related, civil 'services' (e.g. administrative or police), 'at_home' or 'other')","family size (binary: 'LE3' - less or equal to 3 or 'GT3' - greater than 3)","parent's cohabitation status (binary: 'T' - living together or 'A' - apart)","student's guardian (nominal: 'mother', 'father' or 'other')")
+
+table1 <- tibble(name,description) 
+table1
+
+```
+
+The dependent variable is G3 (GPA) while the rest of the variables will be predictors in the model. The predictors were wisely chosen so that they relate the the family lifestyle the child has at home and can be used to determine the effect on GPA.  
+
+
+A glimpse of the data set containing 200 math students and their predictor values is shown below:
+
+```{r, echo=FALSE}
+math_data <- read.csv('~/Desktop/student-mat.csv')
+math_data <- math_data %>% select(G3,famrel,Mjob,Fjob,famsize,Pstatus,guardian)
+set.seed(6332)
+math_data_final <- sample_n(math_data, 200)
+head(math_data_final)
+```
+
+A glimpse of the data set containing 200 Portuguese students and their predictor values is shown below:
+
+```{r, echo=FALSE}
+port_data <- read.csv('~/Desktop/student-por.csv')
+port_data <- port_data %>% select(G3,famrel,Mjob,Fjob,famsize,Pstatus,guardian)
+set.seed(6332)
+port_data_final <- sample_n(port_data, 200)
+head(port_data_final)
+```
+
+##Model 
+
+The next step the data analysis would be to develop the model. For this section, a multiple linear regression model will be used to describe the data as there is more than one predictor to be factored into the model and the output is numeric and non-binary. Hence a multiple linear regression model seems to fit the data the best considering the data set and question at hand. 
+
+The first model will be developed using the math students data set. A summary of the model is shown below where G3 is the dependent variable. It includes the beta coefficients and the P-values.
+
+```{r, echo=FALSE}
+model<- lm(G3~ famrel + as.factor(Mjob) + as.factor(Fjob) + as.factor(famsize) + as.factor(Pstatus) + as.factor(guardian), data = math_data_final)
+summary(model)
+```
+
+According to the resulting summary output above, the multiple linear regression model is as follows: 
+
+G3 = 6.7507 + 0.5502famrel + 2.1375Mjob(health) + 0.2823Mjob(other) + 0.8411Mjob(services) + 1.3763Mjob(teacher) + 0.9395Fjob(health) + 0.4283Fjob(other) + 0.4825Fjob(services) + 1.9957Fjob(teacher) + 0.6285famsize(LE3) + -0.0917Pstatus(T) + 0.0431guardian(mother) + -2.4364guardian(other)
+
+G3 = dependent variable 
+6.67507 = intercept term 
+0.5502 = Beta coefficient for famrel 
+2.1375 = Beta coefficient for Mjob when Mjob = health
+0.2823 = Beta coefficient for Mjob when Mjob = other
+0.8411 = Beta coefficient for Mjob when Mjob = services
+1.1376 = Beta coefficient for Mjob when Mjob = teacher
+0.9395 = Beta coefficient for Fjob when Fjob = health
+0.4283 = Beta coefficient for Fjob when Fjob = other
+0.4825 = Beta coefficient for Fjob when Fjob = services
+1.9957 = Beta coefficient for Fjob when Fjob = teacher
+0.6285 = Beta coefficient for famsize when famsize = <3
+-0.0917 = Beta coefficient for Pstatus when Pstatus = T
+0.0431 = Beta coefficient for guardian when guardian = mother
+-2.4364 = Beta coefficient for guardian when guardian = other
+
+
+The second model will be developed using the data set of the students in Portuguese class. The summary of the output is shown below: 
+```{r}
+model2<- lm(G3~ famrel + as.factor(Mjob) + as.factor(Fjob) + as.factor(famsize) + as.factor(Pstatus) + as.factor(guardian), data = port_data_final)
+summary(model)
+
+```
+
+According to the resulting summary output above, the multiple linear regression model is as follows: 
+
+G3 = 10.4455 + 0.1884famrel + 2.1125Mjob(health) + 0.2740Mjob(other) + 0.9261Mjob(services) + 2.8858Mjob(teacher) + -0.9571Fjob(health) + 0.1980Fjob(other) + -0.6112Fjob(services) + 0.2462Fjob(teacher) + 0.9983famsize(LE3) + -0.2553Pstatus(T) + -0.6527guardian(mother) + -1.4230guardian(other)
+
+G3 = dependent variable 
+10.445 = intercept term 
+0.1884 = Beta coefficient for famrel 
+2.1125 = Beta coefficient for Mjob when Mjob = health
+0.2740 = Beta coefficient for Mjob when Mjob = other
+0.9261 = Beta coefficient for Mjob when Mjob = services
+2.8858 = Beta coefficient for Mjob when Mjob = teacher
+-0.9571 = Beta coefficient for Fjob when Fjob = health
+0.1980 = Beta coefficient for Fjob when Fjob = other
+-0.6112 = Beta coefficient for Fjob when Fjob = services
+0.2462 = Beta coefficient for Fjob when Fjob = teacher
+0.9983 = Beta coefficient for famsize when famsize = <3
+-0.2553 = Beta coefficient for Pstatus when Pstatus = T
+-0.6527 = Beta coefficient for guardian when guardian = mother
+-1.4230 = Beta coefficient for guardian when guardian = other
+
+
+##Results
+
+The P-values of all the predictors for the data set of math students are given in Table 2 below: 
+
+```{r}
+predictor_mat <- c('famrel','Mjob(health)','Mjob(other)','Mjob(services)','Mjob(teacher)','Fjob(health)','Fjob(other)','Fjob(services)','Fjob(teacher)','famsize(LE3)','Pstatus(T)','guardian(mother)','guardian(other)')
+P_Value_mat <- c(0.1266, 0.1265, 0.7828, 0.4660, 0.2710, 0.6948, 0.8195, 0.8025, 0.3852, 0.4104, 0.9346, 0.9600, 0.0627)
+tibble(predictor_mat,P_Value_mat)
+```
+
+In the introduction section, the significance level was chosen to be 0.05. According to this chosen value and in relation to the summary, none of the predictors that are in the model have a p-value less than 0.05. 
+
+The P-values of all the predictors for the data set of Portuguese students are given in Table 3 below: 
+
+
+```{r}
+predictor_port <- c('famrel','Mjob(health)','Mjob(other)','Mjob(services)','Mjob(teacher)','Fjob(health)','Fjob(other)','Fjob(services)','Fjob(teacher)','famsize(LE3)','Pstatus(T)','guardian(mother)','guardian(other)')
+P_Value_port <- c(0.3777, 0.0696, 0.6561, 0.1800, 0.0010, 0.5371, 0.8325, 0.5305, 0.8500, 0.0491, 0.6975, 0.2550, 0.1682)
+tibble(predictor_port,P_Value_port)
+
+```
+
+In the introduction section, the significance level was chosen to be 0.05. According to this chosen value and in relation to the summary, the predictors that are in the model that have a p-value less than 0.05 are famsize and Mjob(teacher). 
+
+The coefficient of multiple determination(R^2) for the data set of students in math class is 0.07395.
+
+The coefficient of multiple determination(R^2) for the data set of students in Portuguese class is 0.1249.
+
+##Discussion
+
+To summarize, two different data sets were taken in order to determine the effect of familial relationships on students' total grades (GPA.) One data set was of students in math class and the other was of students in Portuguese class. A random sample of 200 students and 6 predictors relating to family conditions were chosen from each class and a multiple linear regression model was developed simultaneously on both data sets. 2 data sets were chosen in order to compare the results of the significance of predictors in both models so the results could be stated with more accuracy. A multiple linear regression model was developed for both the data sets: 
+
+The MLR model for the data set containing 200 children in math class was found to be: 
+
+G3 = 6.7507 + 0.5502famrel + 2.1375Mjob(health) + 0.2823Mjob(other) + 0.8411Mjob(services) + 1.3763Mjob(teacher) + 0.9395Fjob(health) + 0.4283Fjob(other) + 0.4825Fjob(services) + 1.9957Fjob(teacher) + 0.6285famsize(LE3) + -0.0917Pstatus(T) + 0.0431guardian(mother) + -2.4364guardian(other)
+
+The MLR model for the data set containing 200 children in Portuguese class was found to be: 
+
+G3 = 10.4455 + 0.1884famrel + 2.1125Mjob(health) + 0.2740Mjob(other) + 0.9261Mjob(services) + 2.8858Mjob(teacher) + -0.9571Fjob(health) + 0.1980Fjob(other) + -0.6112Fjob(services) + 0.2462Fjob(teacher) + 0.9983famsize(LE3) + -0.2553Pstatus(T) + -0.6527guardian(mother) + -1.4230guardian(other)
+
+After the model was developed, it was found that none of the predictors were significant in determining G3 for the students in math class because all the p-values were greater than 0.05 while only famsize and Mjob(teacher) was significant in determining G3 for the students in the Portuguese class since only their p-values were less than 0.05. Under the model developed using the data set from students from Portuguese class, since the 2 predictors are significant, if the mother is a teacher and the family size is less than 3, then there is a positive impact on the G3 of the student. Hence it can be said that a student who's family size is less than three and who's mother is a teacher will have a higher GPA than a student who's mom is not a teacher and who has a family size more than 3. However, this difference in GPA will not be a significant one. Keep in mind that this result does not imply causation. 
+
+The coefficient of multiple determinants was also low for both models (approximately 7% and 12% for the first and second model respectively) which indicated that the model was not a good fit for the data. This is consistent with the p-values result as most of the predictors were insignificant hence the model was not a good fit for the data. As a result, globally this means that familial relationships don't have much of an impact on students' GPA. 
+
+Since 2 different results were found in the different data sets, the next step would be to identify why and develop a more valid model. One of the reasons for this difference can be the random selection of 200 samples. There might have been some random biasedness in one of the samples which led to the difference. Re-selecting a random sample of 200 and obtaining the summary statistics for the new multiple linear regression model could resolve the issue. The sample size could also be increased to reduce the biasedness within each data set. 
+
+Considering that it is true that only the variables famsize and Mjob(teacher) are significant for the model, a new model is created below to see the impact of using only those two predictors on R^2. A summary of the output of the new model is shown below: 
+
+
+```{r}
+model3<- lm(G3~ famsize + as.factor(Mjob), data = port_data_final) 
+summary(model3)
+```
+
+As shown above, the R^2 is approximately 10% which is still extremely low. Hence, new variables need to be considered to get a better fit for the model. 
+
+One way in which this can be done is to go back to the same subjects and ask them questions relating to other predictors which were not included such as number of siblings, earnings of father, earnings of mother. These variables are also numeric which will help determine correlation between the variables and G3 and will help determine how strongly these factors relate to G3. One of the weaknesses in this study was that the data set barely contained any numerical variables, hence correlation could not be calculated. Correlation would have helped with the determination of how strongly the predictors influence GPA and would have led to more accurate findings of the valid model. 
+
+A further step would be to compare the findings of this study to other similar studies which would help indicate the various predictors that could be used in this observational study. A comparison of similar findings would also validate the results of the experiment and indicate a valid multiple linear regression model. 
+
+##References 
+
+Kaggle Link to databases: https://www.kaggle.com/uciml/student-alcohol-consumption
+
+
+
